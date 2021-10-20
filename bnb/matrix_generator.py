@@ -2,6 +2,11 @@ import math
 from random import randint
 
 
+class InvalidAxisError(Exception):
+    def __str__(self):
+        return "잘못된 axis 입력"
+
+
 class MatrixGenerator:
     def __init__(self, n_jobs: int = 10):
         self.n_jobs: int = n_jobs
@@ -26,3 +31,28 @@ class MatrixGenerator:
 
     def show(self):
         print(self.matrix)
+
+    def _row_reduction(self):
+        pass
+
+    def _col_reduction(self):
+        pass
+
+    def min(self, i, axis):
+        """get min value of i-th row(or column)
+        axis=0: row
+        axis=1: column
+        """
+        if axis != 0 and axis != 1:
+            raise InvalidAxisError()
+
+        if axis == 0:
+            return min(self.pick_row(i))
+
+        return min(self.pick_col(i))
+
+    def pick_row(self, i):
+        return self.matrix[i]
+
+    def pick_col(self, j):
+        return [row[j] for row in self.matrix]

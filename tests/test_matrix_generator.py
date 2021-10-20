@@ -23,3 +23,8 @@ class TestMatrixGenerator(unittest.TestCase):
             for j in range(5):
                 if i != j:
                     self.assertTrue(1 <= matrix.get_element(i, j) <= 30)
+
+    def test_min(self):
+        matrix = MatrixGenerator(n_jobs=5)
+        self.assertEqual(min(matrix.pick_row(0)), matrix.min(0, 0))
+        self.assertEqual(min(matrix.pick_col(0)), matrix.min(0, 1))
