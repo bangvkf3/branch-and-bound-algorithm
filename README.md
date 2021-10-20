@@ -14,6 +14,7 @@ Regret-based Branch & Bound algorithm by Litte et al.(1963)
 - 연산
   - show() : show matrix
   - size() : return [row 개수, column 개수]
+  - get_element(i, j) : return (i, j) element
   - pick_row(i) : row i
   - pick_column(j) : get column j
   - min(i, axis)
