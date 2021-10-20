@@ -12,6 +12,8 @@ Regret-based Branch & Bound algorithm by Litte et al.(1963)
 - 각 job의 set-up time은 [1, 30] 범위의 실수로 랜덤 생성된다
 - (i, j) _s.t. i==j_ 원소의 경우 무한값(불가능 루트)으로 초기화 된다
 - 연산
+  - show() : show matrix
+  - size() : return [row 개수, column 개수]
   - pick_row(i) : row i
   - pick_column(j) : get column j
   - min(i, axis)
