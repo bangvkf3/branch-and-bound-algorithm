@@ -29,4 +29,5 @@ Regret-based Branch & Bound algorithm by Litte et al.(1963)
     - [x] col_reduce
     - [x] lower_bound 업데이트
   - [ ] calculate_regret(i, j) : (i, j) 원소의 regret을 구한다
+  - [x] find_zero() : 값이 0인 element의 index (i, j)를 리스트로 리턴
   - [ ] update (i, j) s.t. [ i-> * -> j] 가 불가능한 경우 // 고민할 필요

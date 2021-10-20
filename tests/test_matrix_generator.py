@@ -58,3 +58,9 @@ class TestMatrixGenerator(unittest.TestCase):
         matrix._col_reduce()
 
         self.assertEqual(sum(min_val), matrix.lower_bound)
+
+    def test_find_zero(self):
+        matrix = MatrixGenerator(n_jobs=5)
+        matrix._reduce()
+        for idx in matrix._find_zero():
+            self.assertEqual(0, matrix.get_element(idx[0], idx[1]))

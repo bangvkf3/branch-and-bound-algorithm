@@ -75,3 +75,11 @@ class MatrixGenerator:
 
     def pick_col(self, j):
         return [row[j] for row in self.matrix]
+
+    def _find_zero(self):
+        zero_list = []
+        for i in range(self.size()[0]):
+            for j in range(self.size()[1]):
+                if self.get_element(i, j) == 0:
+                    zero_list.append((i, j))
+        return zero_list
