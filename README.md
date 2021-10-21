@@ -31,4 +31,11 @@ Regret-based Branch & Bound algorithm by Litte et al.(1963)
   - [x] calculate_regret(i, j) : (i, j) 원소의 regret을 구한다
   - [x] find_zero() : 값이 0인 element의 index (i, j)를 리스트로 리턴
   - [ ] update (i, j) s.t. [ i-> * -> j] 가 불가능한 경우 // 고민할 필요
-ㄹㅁ
+
+### 2. Node
+
+- 각 Node가 가지는 property
+  - Matrix 객체
+  - path : [i, j]
+  - left : job 순서 i -> j를 선택한 Node
+  - right : job 순서 i -> j를 선택하지 않은 Node
