@@ -34,7 +34,12 @@ class MatrixGenerator:
         return [len(self.matrix), len(self.matrix[0])]
 
     def show(self):
-        print(self.matrix)
+        print("  ", end="  ")
+        for col_name in self.col_names:
+            print(col_name, end="   ")
+        print()
+        for i in range(len(self.matrix)):
+            print(self.row_names[i], self.matrix[i])
 
     def _reduce(self):
         self._row_reduce()
