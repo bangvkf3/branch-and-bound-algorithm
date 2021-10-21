@@ -15,6 +15,7 @@ class JobTable:
         self.col_labels = [j + 1 for j in range(n_jobs)]
         self.lower_bound = 0
         self.path_list = []
+        self.is_step_end = False
 
     def _init_matrix(self):
         matrix = [[0] * self.n_jobs for _ in range(self.n_jobs)]
@@ -48,6 +49,8 @@ class JobTable:
 
     def _select_max_regret(self):
         if self.size()[0] == 1:
+            self._append_max_regret_path(0, 0)
+            self.is_step_end = True
             return
         max_regret_i, max_regret_j = self._get_idx_max_regret()
         self._append_max_regret_path(max_regret_i, max_regret_j)
@@ -132,9 +135,12 @@ class JobTable:
     def _not_select_max_regret(self):
         self._reduce()
         self._make_unselected_path_impossible()
-        self._reduce()
 
     def _make_unselected_path_impossible(self):
+        if self.size()[0] == 1:
+            self.lower_bound = math.inf
+            self.is_step_end = True
+            return
         max_regret_i, max_regret_j = self._get_idx_max_regret()
         self.matrix[max_regret_i][max_regret_j] = math.inf
 
@@ -149,6 +155,7 @@ class JobTable:
 
             if math.isinf(i_row_min):
                 self.lower_bound = math.inf
+                return
 
             self.matrix[i] = [x - i_row_min for x in self.matrix[i]]
 
@@ -159,6 +166,7 @@ class JobTable:
 
             if math.isinf(j_col_min):
                 self.lower_bound = math.inf
+                return
 
             for i in range(self.size()[0]):
                 self.matrix[i][j] -= j_col_min
