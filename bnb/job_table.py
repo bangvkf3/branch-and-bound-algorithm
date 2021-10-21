@@ -7,13 +7,14 @@ class InvalidAxisError(Exception):
         return "잘못된 axis 입력"
 
 
-class MatrixGenerator:
+class JobTable:
     def __init__(self, n_jobs: int = 10):
         self.n_jobs: int = n_jobs
         self.matrix = self._init_matrix()
-        self.lower_bound = 0
         self.row_labels = [i + 1 for i in range(n_jobs)]
         self.col_labels = [j + 1 for j in range(n_jobs)]
+        self.lower_bound = 0
+        self.path_list = []
 
     def _init_matrix(self):
         matrix = [[0] * self.n_jobs for _ in range(self.n_jobs)]
@@ -49,9 +50,15 @@ class MatrixGenerator:
         if self.size()[0] == 1:
             return
         max_regret_i, max_regret_j = self._get_idx_max_regret()
+        self._append_max_regret_path(max_regret_i, max_regret_j)
         self._make_reverse_path_impossible(max_regret_i, max_regret_j)
         self._delete_row(max_regret_i)
         self._delete_col(max_regret_j)
+
+    def _append_max_regret_path(self, i, j):
+        row_label = self.row_labels[i]
+        col_label = self.col_labels[j]
+        self.path_list.append([row_label, col_label])
 
     def _get_idx_max_regret(self):
         max_ = 0
@@ -123,13 +130,13 @@ class MatrixGenerator:
         self._reduce()
 
     def _not_select_max_regret(self):
-        if self.size()[0] == 1:
-            self.lower_bound = math.inf
-        max_regret_i, max_regret_j = self._get_idx_max_regret()
-        self._make_unselected_path_impossible(max_regret_i, max_regret_j)
+        self._reduce()
+        self._make_unselected_path_impossible()
+        self._reduce()
 
-    def _make_unselected_path_impossible(self, i, j):
-        self.matrix[i][j] = math.inf
+    def _make_unselected_path_impossible(self):
+        max_regret_i, max_regret_j = self._get_idx_max_regret()
+        self.matrix[max_regret_i][max_regret_j] = math.inf
 
     def _reduce(self):
         self._row_reduce()
@@ -140,12 +147,18 @@ class MatrixGenerator:
             i_row_min = self.min(i, 0)
             self._accmulate_in_lower_bound(i_row_min)
 
+            if math.isinf(i_row_min):
+                self.lower_bound = math.inf
+
             self.matrix[i] = [x - i_row_min for x in self.matrix[i]]
 
     def _col_reduce(self):
         for j in range(self.size()[1]):
             j_col_min = self.min(j, 1)
             self._accmulate_in_lower_bound(j_col_min)
+
+            if math.isinf(j_col_min):
+                self.lower_bound = math.inf
 
             for i in range(self.size()[0]):
                 self.matrix[i][j] -= j_col_min
