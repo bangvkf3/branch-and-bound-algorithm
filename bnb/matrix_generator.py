@@ -78,16 +78,46 @@ class MatrixGenerator:
         return min(self.pick_col(i))
 
     def pick_row(self, i):
-        return self.matrix[i]
+        return self.matrix[i][:]
 
     def pick_col(self, j):
         return [row[j] for row in self.matrix]
 
+    def _choose_max_regret(self):
+        if self.size()[0] == 1:
+            return
+        max_regret_i, max_regret_j = self._get_idx_max_regret()
+        self._replace_to_inf(max_regret_j, max_regret_i)
+        self._delete_row(max_regret_i)
+        self._delete_col(max_regret_j)
+
+    def _get_idx_max_regret(self):
+        max_ = 0
+        zero_idx_list = self._find_zero()
+        idx = [zero_idx_list[0][0], zero_idx_list[0][1]]
+        for i, j in zero_idx_list:
+            regret_i_j = self._cal_regret(i, j)
+            if regret_i_j > max_:
+                max_ = regret_i_j
+                idx = [i, j]
+
+        return idx
+
     def _find_zero(self):
-        zero_list = []
+        zero_idx_list = []
         for i in range(self.size()[0]):
             for j in range(self.size()[1]):
                 if self.get_element(i, j) == 0:
+                    zero_idx_list.append([i, j])
+        return zero_idx_list
+
+    def _cal_regret(self, i, j):
+        row = self.pick_row(i)
+        row_without_j = row[:j] + row[j + 1 :]
+        col = self.pick_col(j)
+        col_without_i = col[:i] + col[i + 1 :]
+        return min(row_without_j) + min(col_without_i)
+
     def _delete_row(self, i):
         del self.matrix[i]
         self._update_name(i, 0)
@@ -112,3 +142,6 @@ class MatrixGenerator:
 
         del self.col_names[i]
         return
+
+    def _replace_to_inf(self, i, j):
+        self.matrix[i][j] = math.inf
