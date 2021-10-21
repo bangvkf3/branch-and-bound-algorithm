@@ -41,53 +41,15 @@ class MatrixGenerator:
         for i in range(len(self.matrix)):
             print(self.row_labels[i], self.matrix[i])
 
-    def _reduce(self):
-        self._row_reduce()
-        self._col_reduce()
+    def step_select_max_regret(self):
+        self._reduce()
+        self._select_max_regret()
 
-    def _row_reduce(self):
-        for i in range(self.size()[0]):
-            i_row_min = self.min(i, 0)
-            self._accmulate_in_lower_bound(i_row_min)
-
-            self.matrix[i] = [x - i_row_min for x in self.matrix[i]]
-
-    def _col_reduce(self):
-        for j in range(self.size()[1]):
-            j_col_min = self.min(j, 1)
-            self._accmulate_in_lower_bound(j_col_min)
-
-            for i in range(self.size()[0]):
-                self.matrix[i][j] -= j_col_min
-
-    def _accmulate_in_lower_bound(self, time: int):
-        self.lower_bound += time
-
-    def min(self, i, axis):
-        """
-        get min value of i-th row(or column)
-        axis=0: row
-        axis=1: column
-        """
-        if axis != 0 and axis != 1:
-            raise InvalidAxisError()
-
-        if axis == 0:
-            return min(self.pick_row(i))
-
-        return min(self.pick_col(i))
-
-    def pick_row(self, i):
-        return self.matrix[i][:]
-
-    def pick_col(self, j):
-        return [row[j] for row in self.matrix]
-
-    def _choose_max_regret(self):
+    def _select_max_regret(self):
         if self.size()[0] == 1:
             return
         max_regret_i, max_regret_j = self._get_idx_max_regret()
-        self._replace_to_inf(max_regret_j, max_regret_i)
+        self._make_reverse_path_impossible(max_regret_i, max_regret_j)
         self._delete_row(max_regret_i)
         self._delete_col(max_regret_j)
 
@@ -143,11 +105,70 @@ class MatrixGenerator:
         del self.col_labels[i]
         return
 
-    def _replace_to_inf(self, i, j):
+    def _make_reverse_path_impossible(self, i, j):
         row_label = self.row_labels[i]
         col_label = self.col_labels[j]
 
-        row_idx_equal_to_col_label = self.col_labels.index(col_label)
-        col_idx_equal_to_row_label = self.col_labels.index(row_label)
+        try:
+            row_idx_equal_to_col_label = self.row_labels.index(col_label)
+            col_idx_equal_to_row_label = self.col_labels.index(row_label)
+            self.matrix[row_idx_equal_to_col_label][
+                col_idx_equal_to_row_label
+            ] = math.inf
+        finally:
+            return
 
-        self.matrix[row_idx_equal_to_col_label][col_idx_equal_to_row_label] = math.inf
+    def step_not_select_max_regret(self):
+        self._not_select_max_regret()
+        self._reduce()
+
+    def _not_select_max_regret(self):
+        if self.size()[0] == 1:
+            self.lower_bound = math.inf
+        max_regret_i, max_regret_j = self._get_idx_max_regret()
+        self._make_unselected_path_impossible(max_regret_i, max_regret_j)
+
+    def _make_unselected_path_impossible(self, i, j):
+        self.matrix[i][j] = math.inf
+
+    def _reduce(self):
+        self._row_reduce()
+        self._col_reduce()
+
+    def _row_reduce(self):
+        for i in range(self.size()[0]):
+            i_row_min = self.min(i, 0)
+            self._accmulate_in_lower_bound(i_row_min)
+
+            self.matrix[i] = [x - i_row_min for x in self.matrix[i]]
+
+    def _col_reduce(self):
+        for j in range(self.size()[1]):
+            j_col_min = self.min(j, 1)
+            self._accmulate_in_lower_bound(j_col_min)
+
+            for i in range(self.size()[0]):
+                self.matrix[i][j] -= j_col_min
+
+    def _accmulate_in_lower_bound(self, time: int):
+        self.lower_bound += time
+
+    def min(self, i, axis):
+        """
+        get min value of i-th row(or column)
+        axis=0: row
+        axis=1: column
+        """
+        if axis != 0 and axis != 1:
+            raise InvalidAxisError()
+
+        if axis == 0:
+            return min(self.pick_row(i))
+
+        return min(self.pick_col(i))
+
+    def pick_row(self, i):
+        return self.matrix[i][:]
+
+    def pick_col(self, j):
+        return [row[j] for row in self.matrix]
