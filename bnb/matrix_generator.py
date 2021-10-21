@@ -12,8 +12,8 @@ class MatrixGenerator:
         self.n_jobs: int = n_jobs
         self.matrix = self._init_matrix()
         self.lower_bound = 0
-        self.row_names = [i + 1 for i in range(n_jobs)]
-        self.col_names = [j + 1 for j in range(n_jobs)]
+        self.row_labels = [i + 1 for i in range(n_jobs)]
+        self.col_labels = [j + 1 for j in range(n_jobs)]
 
     def _init_matrix(self):
         matrix = [[0] * self.n_jobs for _ in range(self.n_jobs)]
@@ -35,11 +35,11 @@ class MatrixGenerator:
 
     def show(self):
         print("  ", end="  ")
-        for col_name in self.col_names:
-            print(col_name, end="   ")
+        for col_label in self.col_labels:
+            print(col_label, end="   ")
         print()
         for i in range(len(self.matrix)):
-            print(self.row_names[i], self.matrix[i])
+            print(self.row_labels[i], self.matrix[i])
 
     def _reduce(self):
         self._row_reduce()
@@ -120,16 +120,16 @@ class MatrixGenerator:
 
     def _delete_row(self, i):
         del self.matrix[i]
-        self._update_name(i, 0)
+        self._update_label(i, 0)
 
     def _delete_col(self, j):
         for row in self.matrix:
             del row[j]
-        self._update_name(j, 1)
+        self._update_label(j, 1)
 
-    def _update_name(self, i, axis=0):
+    def _update_label(self, i, axis=0):
         """
-        update name of i-th row(or column) after deleting row(or column)
+        update label of i-th row(or column) after deleting row(or column)
         axis=0: row
         axis=1: column
         """
@@ -137,11 +137,17 @@ class MatrixGenerator:
             raise InvalidAxisError()
 
         if axis == 0:
-            del self.row_names[i]
+            del self.row_labels[i]
             return
 
-        del self.col_names[i]
+        del self.col_labels[i]
         return
 
     def _replace_to_inf(self, i, j):
-        self.matrix[i][j] = math.inf
+        row_label = self.row_labels[i]
+        col_label = self.col_labels[j]
+
+        row_idx_equal_to_col_label = self.col_labels.index(col_label)
+        col_idx_equal_to_row_label = self.col_labels.index(row_label)
+
+        self.matrix[row_idx_equal_to_col_label][col_idx_equal_to_row_label] = math.inf
