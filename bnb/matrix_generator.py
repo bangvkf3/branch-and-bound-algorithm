@@ -12,6 +12,8 @@ class MatrixGenerator:
         self.n_jobs: int = n_jobs
         self.matrix = self._init_matrix()
         self.lower_bound = 0
+        self.row_names = [i + 1 for i in range(n_jobs)]
+        self.col_names = [j + 1 for j in range(n_jobs)]
 
     def _init_matrix(self):
         matrix = [[0] * self.n_jobs for _ in range(self.n_jobs)]
@@ -81,5 +83,27 @@ class MatrixGenerator:
         for i in range(self.size()[0]):
             for j in range(self.size()[1]):
                 if self.get_element(i, j) == 0:
-                    zero_list.append((i, j))
-        return zero_list
+    def _delete_row(self, i):
+        del self.matrix[i]
+        self._update_name(i, 0)
+
+    def _delete_col(self, j):
+        for row in self.matrix:
+            del row[j]
+        self._update_name(j, 1)
+
+    def _update_name(self, i, axis=0):
+        """
+        update name of i-th row(or column) after deleting row(or column)
+        axis=0: row
+        axis=1: column
+        """
+        if axis != 0 and axis != 1:
+            raise InvalidAxisError()
+
+        if axis == 0:
+            del self.row_names[i]
+            return
+
+        del self.col_names[i]
+        return
